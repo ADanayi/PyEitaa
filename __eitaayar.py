@@ -8,7 +8,7 @@ import os
 import typing as T
 
 
-class EitaayarResponse:
+class _EitaayarResponse:
     def __init__(self, parent: 'Eitaayar', method_name: str, data: dict) -> None:
         self.__parent = parent
         self.__data = data
@@ -22,8 +22,8 @@ class EitaayarResponse:
             return False
 
     @property
-    def reply(self) -> 'EitaayarReplier':
-        return EitaayarReplier(self.__parent, self.message_id)
+    def reply(self) -> '_EitaayarReplier':
+        return _EitaayarReplier(self.__parent, self.message_id)
 
     @property
     def message_id(self) -> T.Union[None, str]:
@@ -71,27 +71,27 @@ class Eitaayar:
         header = {
             'User-Agent': "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.7) Gecko/2009032803"
         }
-        if type(self) == EitaayarReplier:
+        if type(self) == _EitaayarReplier:
             data['reply_to_message_id'] = self.reply_to_message_id
         if 'reply_to_message_id' in data and data['reply_to_message_id'] is not None:
             r = data['reply_to_message_id']
-            if type(r) == EitaayarResponse:
+            if type(r) == _EitaayarResponse:
                 data['reply_to_message_id'] = r.message_id
         r = requests.post(url, data=data, timeout=self.__timeout,
                           headers=header, files=files)
-        return EitaayarResponse(self, method_name, r.json())
+        return _EitaayarResponse(self, method_name, r.json())
 
     def __url(self, method_name: str) -> str:
         return f'https://eitaayar.ir/api/{self.__token}/{method_name}'
 
-    def getMe(self) -> EitaayarResponse:
+    def getMe(self) -> _EitaayarResponse:
         ret = self.__post('getMe', {}, None)
         return ret
 
-    def sendText(self, text: str, title: str = None, notify: bool = True, reply_to_message_id: str = None, pin: bool = False, viewCountForDelete: bool = None) -> EitaayarResponse:
+    def sendText(self, text: str, title: str = None, notify: bool = True, reply_to_message_id: str = None, pin: bool = False, viewCountForDelete: bool = None) -> _EitaayarResponse:
         return self.sendMessage(text, title, notify, reply_to_message_id, pin, viewCountForDelete)
 
-    def sendMessage(self, text: str, title: str = None, notify: bool = True, reply_to_message_id: str = None, pin: bool = False, viewCountForDelete: bool = None) -> EitaayarResponse:
+    def sendMessage(self, text: str, title: str = None, notify: bool = True, reply_to_message_id: str = None, pin: bool = False, viewCountForDelete: bool = None) -> _EitaayarResponse:
         d = {
             'chat_id': self.__chat_id,
             'text': text
@@ -108,7 +108,7 @@ class Eitaayar:
             d['viewCountForDelete'] = int(viewCountForDelete)
         return self.__post('sendMessage', d, None)
 
-    def sendFile(self, filepath: str, caption: str = None, filename: str = None, title: str = None, notify: bool = True, reply_to_message_id: str = None, pin: bool = False, viewCountForDelete: bool = None) -> EitaayarResponse:
+    def sendFile(self, filepath: str, caption: str = None, filename: str = None, title: str = None, notify: bool = True, reply_to_message_id: str = None, pin: bool = False, viewCountForDelete: bool = None) -> _EitaayarResponse:
         d = {
             'chat_id': self.__chat_id
         }
@@ -131,21 +131,21 @@ class Eitaayar:
         }
         return self.__post('sendFile', d, files)
 
-    def sendPhoto(self, filepath: str, caption: str = None, filename: str = None, title: str = None, notify: bool = True, reply_to_message_id: str = None, pin: bool = False, viewCountForDelete: bool = None) -> EitaayarResponse:
+    def sendPhoto(self, filepath: str, caption: str = None, filename: str = None, title: str = None, notify: bool = True, reply_to_message_id: str = None, pin: bool = False, viewCountForDelete: bool = None) -> _EitaayarResponse:
         return self.sendFile(self, filepath, caption, filename, title, notify, reply_to_message_id, pin, viewCountForDelete)
 
-    def sendGif(self, filepath: str, caption: str = None, title: str = None, notify: bool = True, reply_to_message_id: str = None, pin: bool = False, viewCountForDelete: bool = None) -> EitaayarResponse:
+    def sendGif(self, filepath: str, caption: str = None, title: str = None, notify: bool = True, reply_to_message_id: str = None, pin: bool = False, viewCountForDelete: bool = None) -> _EitaayarResponse:
         filename = os.path.split(filepath)[1]
         filename = f'{filename.split(".")[0]}.gif'
         return self.sendFile(filepath, filename, caption, title, notify, reply_to_message_id, pin, viewCountForDelete)
 
-    def sendSticker(self, filepath: str, caption: str = None, title: str = None, notify: bool = True, reply_to_message_id: str = None, pin: bool = False, viewCountForDelete: bool = None) -> EitaayarResponse:
+    def sendSticker(self, filepath: str, caption: str = None, title: str = None, notify: bool = True, reply_to_message_id: str = None, pin: bool = False, viewCountForDelete: bool = None) -> _EitaayarResponse:
         filename = os.path.split(filepath)[1]
         filename = f'{filename.split(".")[0]}.webp'
         return self.sendFile(filepath, filename, caption, title, notify, reply_to_message_id, pin, viewCountForDelete)
 
 
-class EitaayarReplier(Eitaayar):
+class _EitaayarReplier(Eitaayar):
     def __init__(self, parent_eitaayar: Eitaayar, reply_to_message_id: T.Union[None, str]) -> None:
         super().__init__(parent_eitaayar.token,
                          parent_eitaayar.chat_id, parent_eitaayar.timeout)
