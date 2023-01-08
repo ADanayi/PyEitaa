@@ -67,6 +67,7 @@ class Eitaayar:
         return self.__timeout
 
     def __post(self, method_name: str, data: dict, files=None):
+        data['parse_mode'] = 'html'
         url = self.__url(method_name)
         header = {
             'User-Agent': "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.7) Gecko/2009032803"
@@ -132,12 +133,12 @@ class Eitaayar:
         return self.__post('sendFile', d, files)
 
     def sendPhoto(self, filepath: str, caption: str = None, filename: str = None, title: str = None, notify: bool = True, reply_to_message_id: str = None, pin: bool = False, viewCountForDelete: bool = None) -> _EitaayarResponse:
-        return self.sendFile(self, filepath, caption, filename, title, notify, reply_to_message_id, pin, viewCountForDelete)
+        return self.sendFile(filepath, caption, filename, title, notify, reply_to_message_id, pin, viewCountForDelete)
 
     def sendGif(self, filepath: str, caption: str = None, title: str = None, notify: bool = True, reply_to_message_id: str = None, pin: bool = False, viewCountForDelete: bool = None) -> _EitaayarResponse:
         filename = os.path.split(filepath)[1]
         filename = f'{filename.split(".")[0]}.gif'
-        return self.sendFile(filepath, filename, caption, title, notify, reply_to_message_id, pin, viewCountForDelete)
+        return self.sendFile(filepath, caption, title, notify, reply_to_message_id, pin, viewCountForDelete)
 
     def sendSticker(self, filepath: str, caption: str = None, title: str = None, notify: bool = True, reply_to_message_id: str = None, pin: bool = False, viewCountForDelete: bool = None) -> _EitaayarResponse:
         filename = os.path.split(filepath)[1]
